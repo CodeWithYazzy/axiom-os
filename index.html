@@ -2291,7 +2291,11 @@
                 m.facts.forEach(f => window.AXIOM_MATRIX.addNode(f.object || f.subject, 's'));
               }
             }
-          } catch (err) { }
+          } catch (err) { console.error("Neural Packet Corruption:", err); }
+        };
+        ws.onerror = (e) => {
+          log('Handshake Error: Link refused.', 'err');
+          console.error("WS Error:", e);
         };
       } catch (e) { log('WS Bridge init failed.', 'err'); setTimeout(connectWS, 5000); }
     }
