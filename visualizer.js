@@ -1,6 +1,6 @@
 // --- CONFIGURATION ---
 // Replace this with your actual Ngrok URL (e.g., https://123-abc.ngrok-free.app)
-const NGROK_URL = "https://premonarchical-lamellirostral-kathryn.ngrok-free.dev"; 
+NGROK_URL = "https://www.google.com/search?q=https://premonarchical-lamellirostral-kathryn.ngrok-free.dev";
 
 // Derived URLs
 const API_URL = NGROK_URL + "/api/mission";
