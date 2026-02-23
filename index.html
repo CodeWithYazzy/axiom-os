@@ -1705,6 +1705,12 @@
   <script>
     'use strict';
 
+    // ─── CLOUD GATEWAY ────────────────────────────────
+    // When running on Vercel, this must be your active Ngrok URL
+    const TUNNEL_URL = "https://premonarchical-lamellirostral-kathryn.ngrok-free.dev";
+    const IS_CLOUD = !['localhost', '127.0.0.1'].includes(location.hostname);
+    const BASE_URL = IS_CLOUD ? TUNNEL_URL : "";
+
     // ─── COLORS ───────────────────────────────────────
     const P = '#00f3ff', S = '#bc13fe', G = '#00ff9d', W = '#ffbf00', D = '#ff1744';
 
@@ -2174,7 +2180,7 @@
       if (latEl) latEl.textContent = '...';
       try {
         const t0 = performance.now();
-        const res = await fetch('/api/mission', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q }) });
+        const res = await fetch(`${BASE_URL}/api/mission`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q }) });
         const ms = (performance.now() - t0).toFixed(0);
         if (latEl) latEl.textContent = ms + 'ms';
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -2209,8 +2215,8 @@
     }
 
     // ─── WS ──────────────────────────────────────────────
-    const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProto}//${location.host}/ws`;
+    const wsProto = IS_CLOUD ? 'wss:' : (location.protocol === 'https:' ? 'wss:' : 'ws:');
+    const wsUrl = IS_CLOUD ? TUNNEL_URL.replace("https://", "wss://") + "/ws" : `${wsProto}//${location.host}/ws`;
     let ws;
     function connectWS() {
       try {
