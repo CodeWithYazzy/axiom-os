@@ -306,6 +306,11 @@
       box-shadow: 0 0 5px var(--secondary)
     }
 
+    .mfill.v {
+      background: linear-gradient(90deg, var(--warning), #ff8800);
+      box-shadow: 0 0 5px var(--warning)
+    }
+
     .metric-val {
       color: var(--primary);
       font-weight: bold;
@@ -1469,7 +1474,7 @@
         <div class="metric">
           <div class="metric-lbl">VRAM</div>
           <div class="mbar">
-            <div class="mfill s" id="vram-fill" style="width:0%"></div>
+            <div class="mfill v" id="vram-fill" style="width:0%"></div>
           </div>
           <div class="metric-val" id="vram-val">0%</div>
         </div>
@@ -2263,9 +2268,11 @@
         ws.onopen = () => {
           log('Neural Handshake Complete.', 'ok');
           addAct('Cloud-to-Local Bridge Active', 'ok');
+          const ne = document.getElementById('net-val'); if (ne) { ne.textContent = 'ONLINE'; ne.className = 'metric-val ok'; }
         };
         ws.onclose = () => {
-          log('Uplink lost. Laptop might be sleeping or Ngrok closed.', 'err');
+          log('Uplink lost. Neural Bridge Disconnected.', 'err');
+          const ne = document.getElementById('net-val'); if (ne) { ne.textContent = 'OFFLINE'; ne.className = 'metric-val err'; }
           setTimeout(connectWS, 5000);
         };
         ws.onerror = (e) => {
