@@ -2220,9 +2220,16 @@
     let ws;
     function connectWS() {
       try {
+        log(`Uplink Request: ${wsUrl}`, 'info');
         ws = new WebSocket(wsUrl);
-        ws.onopen = () => { log('Neural uplink established.', 'ok'); addAct('WebSocket Connected', 'ok'); };
-        ws.onclose = () => { log('Connection lost. Retrying...', 'err'); setTimeout(connectWS, 3000); };
+        ws.onopen = () => {
+          log('Neural uplink established.', 'ok');
+          addAct('Uplink Synchronized', 'ok');
+        };
+        ws.onclose = () => {
+          log('Uplink lost. Retrying in 5s...', 'err');
+          setTimeout(connectWS, 5000);
+        };
         ws.onerror = () => log('WebSocket error.', 'err');
         ws.onmessage = e => {
           try {
