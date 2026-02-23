@@ -2220,26 +2220,29 @@
     let ws;
     function connectWS() {
       try {
-        log(`Uplink Request: ${wsUrl}`, 'info');
+        log(`Uplink Target: ${wsUrl}`, 'info');
         ws = new WebSocket(wsUrl);
         ws.onopen = () => {
-          log('Neural uplink established.', 'ok');
-          addAct('Uplink Synchronized', 'ok');
+          log('Neural Handshake Complete.', 'ok');
+          addAct('Cloud-to-Local Bridge Active', 'ok');
         };
         ws.onclose = () => {
-          log('Uplink lost. Retrying in 5s...', 'err');
+          log('Uplink lost. Laptop might be sleeping or Ngrok closed.', 'err');
           setTimeout(connectWS, 5000);
         };
-        ws.onerror = () => log('WebSocket error.', 'err');
+        ws.onerror = (e) => {
+          log('Uplink Error: Check if Ngrok is active.', 'err');
+          console.error("WS Error Details:", e);
+        };
         ws.onmessage = e => {
           try {
             const m = JSON.parse(e.data);
             if (m.type === 'telemetry') updateTelemetry(m);
             else if (m.type === 'voice_status') setVoice(m.status);
             else if (m.type === 'activity') addAct(m.message, m.level || 'info');
-          } catch (err) { log('Parse error.', 'err'); }
+          } catch (err) { }
         };
-      } catch (e) { log('WS init failed.', 'err'); setTimeout(connectWS, 3000); }
+      } catch (e) { log('WS Bridge init failed.', 'err'); setTimeout(connectWS, 5000); }
     }
 
     // ─── LIVE COUNTER ANIMATION (demo) ───────────────────
