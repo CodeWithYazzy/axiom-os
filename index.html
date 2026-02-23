@@ -1467,6 +1467,13 @@
           <div class="metric-val" id="ram-val">0%</div>
         </div>
         <div class="metric">
+          <div class="metric-lbl">VRAM</div>
+          <div class="mbar">
+            <div class="mfill s" id="vram-fill" style="width:0%"></div>
+          </div>
+          <div class="metric-val" id="vram-val">0%</div>
+        </div>
+        <div class="metric">
           <div class="metric-lbl">NET</div>
           <div class="metric-val ok" id="net-val">ONLINE</div>
         </div>
@@ -2013,6 +2020,24 @@
         }
         requestAnimationFrame(draw);
       }
+      window.AXIOM_MATRIX = {
+        addNode: (label, type) => {
+          const n = {
+            x: Math.random() * cv.width,
+            y: Math.random() * cv.height,
+            vx: (Math.random() - .5) * .8, vy: (Math.random() - .5) * .8,
+            r: 4 + Math.random() * 2,
+            t: type || 'p',
+            pulse: 0,
+            _label: label,
+            _ring: { r: 5, a: 1 }
+          };
+          nodes.push(n);
+          if (nodes.length > 80) nodes.shift();
+          const nel = document.getElementById('kg-nodes');
+          if (nel) nel.textContent = nodes.length;
+        }
+      };
       draw();
     })();
 
@@ -2153,6 +2178,14 @@
       document.getElementById('ram-val').textContent = ram + '%';
       const cf = document.getElementById('cpu-fill'), rf = document.getElementById('ram-fill');
       if (cf) cf.style.width = cpu + '%'; if (rf) rf.style.width = ram + '%';
+
+      // VRAM handling
+      if (data.vram && data.vram.available) {
+        const vp = data.vram.percent || 0;
+        const vv = document.getElementById('vram-val'); if (vv) vv.textContent = vp + '%';
+        const vf = document.getElementById('vram-fill'); if (vf) vf.style.width = vp + '%';
+      }
+
       if (cpu > cpuPk) { cpuPk = cpu; const e = document.getElementById('cpupk'); if (e) e.textContent = `PEAK: ${cpuPk}%`; }
       if (ram > ramPk) { ramPk = ram; const e = document.getElementById('rampk'); if (e) e.textContent = `PEAK: ${ramPk}%`; }
       pushChart(cpuChart, cpu); pushChart(ramChart, ram);
@@ -2180,7 +2213,12 @@
       if (latEl) latEl.textContent = '...';
       try {
         const t0 = performance.now();
-        const res = await fetch(`${BASE_URL}/api/mission`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q }) });
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const res = await fetch(`${BASE_URL}/api/mission`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q, tz: tz })
+        });
         const ms = (performance.now() - t0).toFixed(0);
         if (latEl) latEl.textContent = ms + 'ms';
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -2240,6 +2278,12 @@
             if (m.type === 'telemetry') updateTelemetry(m);
             else if (m.type === 'voice_status') setVoice(m.status);
             else if (m.type === 'activity') addAct(m.message, m.level || 'info');
+            else if (m.type === 'knowledge_update') {
+              addAct(`Knowledge Synced: ${m.entity}`, 'ok');
+              if (window.AXIOM_MATRIX) {
+                m.facts.forEach(f => window.AXIOM_MATRIX.addNode(f.object || f.subject, 's'));
+              }
+            }
           } catch (err) { }
         };
       } catch (e) { log('WS Bridge init failed.', 'err'); setTimeout(connectWS, 5000); }
