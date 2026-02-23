@@ -2181,7 +2181,7 @@
 
       // VRAM handling
       if (data.vram && data.vram.available) {
-        const vp = data.vram.percent || 0;
+        const vp = data.vram.used_pct || 0;
         const vv = document.getElementById('vram-val'); if (vv) vv.textContent = vp + '%';
         const vf = document.getElementById('vram-fill'); if (vf) vf.style.width = vp + '%';
       }
