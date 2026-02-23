@@ -3,7 +3,7 @@
 const NGROK_URL = "https://premonarchical-lamellirostral-kathryn.ngrok-free.dev"; 
 
 // Derived URLs
-const API_URL = NGROK_URL;
+const API_URL = NGROK_URL + "/api/mission";
 const WS_URL = NGROK_URL.replace("https://", "wss://") + "/ws";
 
 // --- UPDATED WS CONNECTION ---
@@ -33,7 +33,7 @@ async function launchMission() {
   try {
     const t0 = performance.now();
     // Using full API_URL instead of relative path
-    const res = await fetch(`${API_URL}/api/mission`, {
+    const res = await fetch(`${API_URL}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: q })
