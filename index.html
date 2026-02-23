@@ -2235,7 +2235,8 @@
           const qel = document.getElementById('s-qry');
           if (qel) qel.textContent = (parseInt(qel.textContent.replace(/,/g, '')) + 1).toLocaleString();
         } else if (data.status === 'BLOCKED') {
-          log(data.message.replace('Access Denied. ', ''), 'err');
+          const msg = data.message || data.response || 'Security override active.';
+          log(msg.replace('Access Denied. ', ''), 'err');
           addAct('Access Blocked', 'err');
         }
       } catch (e) {
